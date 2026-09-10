@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://winverse.winjit.com/Backend",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

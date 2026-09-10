@@ -1,0 +1,454 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DashboardComponent } from './dashboard.component';
+import { TabPlaceholderComponent } from './tab-placeholder.component';
+import { ApiService } from './api.service';
+
+@Component({
+  selector: 'app-bench-tabs',
+  standalone: true,
+  imports: [CommonModule, FormsModule, DashboardComponent, TabPlaceholderComponent],
+  template: `
+    <section class="tab-shell">
+    <img class="winjit-icon" src="/assets/icons/winjit_logo.svg" alt="Location icon" />
+      <div class="tab-header">
+        <div class="tab-list" role="tablist" aria-label="Bench dashboard tabs">
+          @for (tab of tabs; track tab) {
+            <button
+              type="button"
+              class="tab-button"
+              [class.active]="selectedTab === tab"
+              [attr.aria-selected]="selectedTab === tab"
+              (click)="selectedTab = tab"
+            >
+              {{ tab }}
+            </button>
+          }
+        </div>
+
+        <div class="tab-meta">Last updated {{ currentUpdatedTime }}</div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-header-group">
+          <button type="button" class="filter-trigger">
+            <span class="filter-icon">☰</span>
+            <span>Filters</span>
+            @if (activeFilterCount > 0) {
+              <span class="filter-badge">{{ activeFilterCount }}</span>
+            }
+          </button>
+        </div>
+
+        <div class="filter-controls">
+          <div class="dropdown-fields">
+            <label class="filter-field select-field">
+              <span>Business Unit</span>
+              <div class="select-wrapper">
+                <select
+                  class="filter-select"
+                  [value]="selectedBu"
+                  (change)="selectedBu = $any($event.target).value"
+                >
+                  <option value="ALL">All Business Units</option>
+                  @for (bu of businessUnits; track bu) {
+                    <option [value]="bu">{{ bu }}</option>
+                  }
+                </select>
+              </div>
+            </label>
+
+            <label class="filter-field select-field">
+              <span>Technology</span>
+              <div class="select-wrapper">
+                <select
+                  class="filter-select"
+                  [value]="selectedTech"
+                  (change)="selectedTech = $any($event.target).value"
+                >
+                  <option value="ALL">All Technologies</option>
+                  @for (tech of technologies; track tech) {
+                    <option [value]="tech">{{ tech }}</option>
+                  }
+                </select>
+              </div>
+            </label>
+          </div>
+
+          <div class="date-fields">
+            <label class="filter-field date-field">
+              <span>From</span>
+              <input type="date" #fromInput [value]="selectedFromDate" (change)="selectedFromDate = fromInput.value" />
+            </label>
+
+            <label class="filter-field date-field">
+              <span>To</span>
+              <input type="date" #toInput [value]="selectedToDate" (change)="selectedToDate = toInput.value" />
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="reset-button"
+          [class.has-active]="activeFilterCount > 0"
+          (click)="resetFilters(fromInput, toInput)"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div class="tab-panel">
+        @switch (selectedTab) {
+          @case ('Bench Summary') {
+            <app-dashboard
+              [fromDate]="selectedFromDate"
+              [toDate]="selectedToDate"
+              [selectedTech]="selectedTech"
+              [selectedBu]="selectedBu"
+            ></app-dashboard>
+          }
+          @case ('Closure Report') {
+            <app-tab-placeholder [title]="'Closure Report'"></app-tab-placeholder>
+          }
+          @case ('Non-billable Workforce') {
+            <app-tab-placeholder [title]="'Non-billable Workforce'"></app-tab-placeholder>
+          }
+          @case ('Allocation Forecast') {
+            <app-tab-placeholder [title]="'Allocation Forecast'"></app-tab-placeholder>
+          }
+        }
+      </div>
+    </section>
+  `,
+  styles: `
+    :host {
+      display: block;
+      width: 100%;
+      background: #ffffff;
+      color: #1f2937;
+      font-family: Inter, 'Segoe UI', sans-serif;
+    }
+
+    .tab-shell {
+      display: block;
+      width: 100%;
+      background: #ffffff;
+    }
+
+    .winjit-icon{
+        padding:10px 0 0 20px;
+    }
+
+    .tab-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 20px 0;
+      border-bottom: 1px solid #dfe6ee;
+      background: #f7f9fb;
+      min-height: 60px;
+    }
+
+    .tab-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 8px;
+      padding-bottom: 0;
+    }
+
+    .tab-button {
+      appearance: none;
+      border: 1px solid transparent;
+      border-bottom: 0;
+      background: transparent;
+      color: #1f2937;
+      padding: 12px 18px 11px;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: -1px;
+    }
+
+    .tab-button:hover {
+      color: #0f172a;
+    }
+
+    .tab-button.active {
+      background: #0b5aa8;
+      color: #ffffff;
+      border-color: #0b5aa8;
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .tab-meta {
+      color: #4b5563;
+      font-size: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px;
+      background: #f7f9fb;
+      border-bottom: 1px solid #dfe6ee;
+    }
+
+    .filter-header-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #1f2937;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 0;
+    }
+
+    .filter-icon {
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #0b5aa8;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 9999px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      line-height: 1;
+    }
+
+    .filter-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .date-fields,
+    .dropdown-fields {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .filter-field {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .date-field input {
+      width: 140px;
+      min-height: 36px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 0 10px;
+      font-size: 13px;
+      line-height: 1;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .date-field input:focus {
+      border-color: #0b5aa8;
+      box-shadow: 0 0 0 2px rgba(11, 90, 168, 0.15);
+    }
+
+    .select-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .filter-select {
+      min-height: 36px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #1f2937;
+      padding: 0 12px;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      max-width: 200px;
+    }
+
+    .filter-select:hover {
+      border-color: #9ca3af;
+    }
+
+    .filter-select:focus {
+      border-color: #0b5aa8;
+      box-shadow: 0 0 0 2px rgba(11, 90, 168, 0.15);
+    }
+
+    .reset-button {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid transparent;
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .reset-button.has-active {
+      color: #0b5aa8;
+      font-weight: 700;
+      background: rgba(11, 90, 168, 0.08);
+    }
+
+    .reset-button:hover {
+      color: #0b5aa8;
+      background: rgba(11, 90, 168, 0.12);
+    }
+
+    .tab-panel {
+      background: #ffffff;
+    }
+
+    @media (max-width: 980px) {
+      .tab-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .tab-meta {
+        white-space: normal;
+      }
+
+      .filter-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .filter-controls {
+        width: 100%;
+      }
+
+      .date-fields,
+      .dropdown-fields {
+        flex-wrap: wrap;
+      }
+
+      .reset-button {
+        margin-left: 0;
+        align-self: flex-start;
+      }
+    }
+  `
+})
+export class BenchTabsComponent implements OnInit {
+  readonly tabs = ['Bench Summary', 'Closure Report', 'Non-billable Workforce', 'Allocation Forecast'];
+  selectedTab = 'Bench Summary';
+
+  selectedFromDate = '';
+  selectedToDate = '';
+  selectedTech = 'ALL';
+  selectedBu = 'ALL';
+
+  technologies: string[] = [];
+  businessUnits: string[] = [];
+
+  constructor(private readonly api: ApiService) {}
+
+  ngOnInit(): void {
+    this.api.getDashboardData().subscribe({
+      next: (res) => {
+        const employees = res.result?.employees || (Array.isArray(res.result) ? res.result : []);
+        const techSet = new Set<string>();
+        const buSet = new Set<string>();
+
+        employees.forEach((emp) => {
+          if (emp.technology && emp.technology.trim()) {
+            techSet.add(emp.technology.trim());
+          }
+          if (emp.businessUnit && emp.businessUnit.trim()) {
+            buSet.add(emp.businessUnit.trim());
+          }
+        });
+
+        if (res.result?.headcounts) {
+          res.result.headcounts.forEach((hc) => {
+            if (hc.businessUnit && hc.businessUnit.trim()) {
+              buSet.add(hc.businessUnit.trim());
+            }
+          });
+        }
+
+        this.technologies = Array.from(techSet).sort((a, b) => a.localeCompare(b));
+        this.businessUnits = Array.from(buSet).sort((a, b) => a.localeCompare(b));
+      },
+      error: (err) => {
+        console.error('Error fetching filter options in BenchTabsComponent', err);
+      }
+    });
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.selectedFromDate) count++;
+    if (this.selectedToDate) count++;
+    if (this.selectedTech && this.selectedTech !== 'ALL') count++;
+    if (this.selectedBu && this.selectedBu !== 'ALL') count++;
+    return count;
+  }
+
+  resetFilters(fromInput: HTMLInputElement, toInput: HTMLInputElement): void {
+    this.selectedFromDate = '';
+    this.selectedToDate = '';
+    this.selectedTech = 'ALL';
+    this.selectedBu = 'ALL';
+    fromInput.value = '';
+    toInput.value = '';
+  }
+
+  get currentUpdatedTime(): string {
+    const now = new Date();
+    return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }).format(now);
+  }
+}
+

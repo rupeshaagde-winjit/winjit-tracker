@@ -1,0 +1,707 @@
+<section class="dashboard-page">
+  <div class="dashboard-intro">
+    <article class="insight-panel">
+      <div class="insight-panel-top">
+        <img class="insight-icon" src="/assets/icons/workforce.svg" alt="Workforce icon" />
+        <span class="insight-chip">Workforce</span>
+      </div>
+      <p class="insight-question">How many employees are on bench?</p>
+      <p class="insight-answer">
+        {{ totalCount() }} employees are currently on bench, representing {{ benchPercentage() }}% of estimated
+        workforce.
+      </p>
+    </article>
+    <article class="insight-panel">
+      <div class="insight-panel-top">
+        <img class="insight-icon" src="/assets/icons/skill.svg" alt="Skills icon" />
+        <span class="insight-chip">Skills</span>
+      </div>
+      <p class="insight-question">Which technologies have highest bench?</p>
+      <p class="insight-answer">{{ getTopTechnologyInsight() }}</p>
+    </article>
+    <article class="insight-panel">
+      <div class="insight-panel-top">
+        <img class="insight-icon" src="/assets/icons/location.svg" alt="Location icon" />
+        <span class="insight-chip">Location</span>
+      </div>
+      <p class="insight-question">Which locations have excess resources?</p>
+      <p class="insight-answer">{{ getTopLocationInsight() }}</p>
+    </article>
+    <article class="insight-panel">
+      <div class="insight-panel-top">
+        <img class="insight-icon" src="/assets/icons/clock_icon.svg" alt="Risk icon" />
+        <span class="insight-chip">Risk</span>
+      </div>
+      <p class="insight-question">Which employees are on long bench?</p>
+      <p class="insight-answer">{{ getLongBenchInsight() }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="executive-overview-block">
+  <div class="section-head_overview">
+    <p class="section-label">Executive Overview</p>
+  </div>
+  <div class="overview-grid">
+    <div class="overview-card">
+      <strong>{{ estimatedTotalWorkforce() }}</strong>
+      <span>Total workforce</span>
+    </div>
+    <div class="overview-card">
+      <strong>{{ allocatedEmployees() }}</strong>
+      <span>Allocated employees</span>
+    </div>
+    <div class="overview-card">
+      <strong>{{ totalCount() }}</strong>
+      <span>Employees on bench</span>
+    </div>
+    <div class="overview-card">
+      <strong>{{ benchPercentage() }}%</strong>
+      <span>Bench percentage</span>
+    </div>
+    <div class="overview-card">
+      <strong>{{ longBenchCount() }}</strong>
+      <span>Long bench employees</span>
+    </div>
+    <!-- <div class="overview-card">
+      <strong>{{ benchRecoveryRate() }}%</strong>
+      <span>Bench recovery rate</span>
+    </div> -->
+  </div>
+</section>
+
+<section class="resource-trend-section">
+  <div class="section-row">
+    <section class="chart-card resource-card">
+      <div class="card-header">
+        <h2>Bench by Business Unit</h2>
+      </div>
+      @if (loading()) {
+      <div class="card-loader">
+        <div class="spinner"></div>Loading resource data...
+      </div>
+      } @else {
+      <div class="resource-card-grid">
+        <article class="resource-unit-card" *ngFor="let item of businessUnitUtilization()">
+          <span class="unit-name">{{ item.businessUnit }}</span>
+          <div class="unit-values">
+            <div>
+              <strong class="billable-value">{{ item.billable }}</strong>
+              <span>billable</span>
+            </div>
+            <div>
+              <strong class="bench-value">{{ item.bench }}</strong>
+              <span>bench</span>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="resource-chart">
+        <div class="resource-chart-area">
+          <div class="resource-chart-axis">
+            <span class="axis-label">Bench employees</span>
+            <div class="axis-ticks">
+              <span *ngFor="let tick of getResourceYAxisTicks()">{{ tick }}</span>
+            </div>
+          </div>
+          <div class="resource-chart-body">
+            <div class="resource-chart-bars">
+              <div class="resource-chart-bar" *ngFor="let item of businessUnitUtilization()">
+                <div class="resource-bar-fill" [style.height.%]="businessUnitBarHeight(item.bench)">
+                  <div class="resource-bar-value">{{ item.bench }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="resource-bar-labels-row">
+              <span class="resource-bar-label" *ngFor="let item of businessUnitUtilization()">{{ item.businessUnit
+                }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="resource-insight">{{ getResourceUtilizationInsight() }}</div>
+      }
+    </section>
+
+    <section class="chart-card trend-card">
+      <div class="card-header">
+        <h2>Bench Trend (Monthly)</h2>
+      </div>
+      @if (loading()) {
+      <div class="card-loader">
+        <div class="spinner"></div>Loading trend data...
+      </div>
+      } @else {
+      <div class="trend-metrics">
+        <div class="trend-metric" *ngFor="let metric of benchTrendMetrics()">
+          <strong class="bench-monthly-value">{{ metric.value }}</strong>
+          <span>{{ metric.label }}</span>
+        </div>
+      </div>
+      <app-chart [seriesData]="chartSeries()" [categories]="chartCategories()"></app-chart>
+      <div class="trend-insight">{{ getBenchTrendInsight() }}</div>
+      }
+    </section>
+  </div>
+</section>
+
+<!-- <div class="kpi-grid">
+  <article class="kpi-card">
+    <span class="kpi-label">Total Bench</span>
+    <strong>{{ totalCount() }}</strong>
+    <p>{{ technologies().length }} technologies · {{ locations().length }} locations</p>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Technology Buckets</span>
+    <strong>{{ technologies().length }}</strong>
+    <p>Most common: {{ technologies()[0]?.key || 'N/A' }}</p>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Location Spread</span>
+    <strong>{{ locations()[0]?.count }}</strong>
+    <p>Top location: {{ locations()[0]?.key || 'N/A' }}</p>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Critical Risk</span>
+    <strong>{{ riskCounts()[0]?.count || 0 }}</strong>
+    <p>Bench members above 45 days</p>
+  </article>
+</div> -->
+
+<div class="skillsInt">
+  <div class="section-head_overview skillTitle">
+    <p class="section-label">Skill Intelligence</p>
+  </div>
+
+  <div class="content-grid">
+    <section class="chart-card bubble-chart-card">
+      <div class="card-header bubble-chart-header">
+        <h2>Bench Employees by Technology</h2>
+      </div>
+      @if (loading()) {
+      <div class="card-loader">
+        <div class="spinner"></div>Loading bubble chart...
+      </div>
+      } @else {
+      <div class="bubble-chart-wrap">
+        <app-bench-tech-bubble-chart [technologies]="technologies()"></app-bench-tech-bubble-chart>
+      </div>
+      <div class="bubble-chart-note">
+        <strong>Insight:</strong> {{ getBubbleChartInsightText() }}
+      </div>
+      }
+    </section>
+
+    <section class="chart-card heatmap-card">
+      <div class="bench-risk-card">
+        <div class="card-header">
+          <h2>Experience wise bench summary</h2>
+        </div>
+        @if (loading()) {
+        <div class="card-loader">
+          <div class="spinner"></div>Loading risk metrics...
+        </div>
+        } @else {
+        <div class="risk-card-body">
+          <div class="age-summary-grid">
+            <div class="age-box" *ngFor="let bucket of getExperienceBuckets()" [ngClass]="bucket.color">
+              <span class="age-value">{{ bucket.count }}</span>
+              <span class="age-label">{{ bucket.label }}</span>
+              <!-- <span class="age-range">{{ bucket.range }}</span> -->
+              <span class="age-percent">{{ bucket.percent }}%</span>
+            </div>
+          </div>
+          <div class="aging-chart-card">
+            <div class="aging-chart-header">
+              <span>Experience wise bench distribution</span>
+              <strong>{{ totalCount() }} employees</strong>
+            </div>
+            <div class="aging-chart">
+              <div class="resource-chart-area">
+                <div class="resource-chart-axis">
+                  <div class="axis-ticks">
+                    <span *ngFor="let tick of getExperienceTicks()">{{ tick }}</span>
+                  </div>
+                </div>
+                <div class="resource-chart-body">
+                  <div class="resource-chart-bars"
+                    [ngStyle]="{'gridTemplateColumns': 'repeat(' + getExperienceBuckets().length + ', minmax(80px, 1fr))'}">
+                    <div class="resource-chart-bar" *ngFor="let bucket of getExperienceBuckets()">
+                      <div class="resource-bar-fill aging-bar-fill" [ngClass]="bucket.color"
+                        [style.height.%]="bucket.barHeight">
+                        <div class="resource-bar-value">{{ bucket.count }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="resource-bar-labels-row"
+                    [ngStyle]="{'gridTemplateColumns': 'repeat(' + getExperienceBuckets().length + ', minmax(80px, 1fr))'}">
+                    <span class="resource-bar-label" *ngFor="let bucket of getExperienceBuckets()">{{ bucket.label
+                      }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="aging-insight">
+              {{ getAgingInsightText() }}
+            </div> -->
+          </div>
+        </div>
+        }
+      </div>
+      <!-- <div class="card-header heatmap-header">
+        <h2>Technology Utilization Heatmap</h2>
+      </div>
+      @if (loading()) {
+      <div class="card-loader">
+        <div class="spinner"></div>Loading heatmap...
+      </div>
+      } @else {
+      <div class="heatmap-table">
+        <div class="heatmap-row heatmap-row-header">
+          <span>Technology</span>
+          <span>Billable</span>
+          <span>Bench</span>
+          <span>Total</span>
+          <span>Total</span>
+        </div>
+        <div class="heatmap-row" *ngFor="let item of technologyUtilizationRows()">
+          <span class="technology-name">{{ item.technology }}</span>
+          <span class="heat-percent" [ngStyle]="{ background: item.billable > 0 ? '#7cc9d6' : '#f2f2f2' }">{{
+            item.billable }}</span>
+          <span class="heat-percent" [ngStyle]="{ background: item.bench > 0 ? '#f77e7e' : '#f2f2f2' }">{{ item.bench
+            }}</span>
+          <span class="heat-percent">{{ item.total }}</span>
+          <span class="heat-percent">{{ item.percent }}%</span>
+        </div>
+      </div>
+      <div class="heatmap-note">
+        {{ getHeatmapInsightText() }}
+      </div>
+      } -->
+    </section>
+  </div>
+</div>
+
+
+<div class="insight-grid">
+  <div class="insight-card bench-risk-card">
+    <div class="card-header">
+      <h2>Bench Risk Monitoring</h2>
+    </div>
+    @if (loading()) {
+    <div class="card-loader">
+      <div class="spinner"></div>Loading risk metrics...
+    </div>
+    } @else {
+    <div class="risk-card-body">
+      <div class="age-summary-grid">
+        <div class="age-box" *ngFor="let bucket of getAgingBuckets()" [ngClass]="bucket.color">
+          <span class="age-value">{{ bucket.count }}</span>
+          <span class="age-label">{{ bucket.label }}</span>
+          <span class="age-range">{{ bucket.range }}</span>
+          <span class="age-percent">{{ bucket.percent }}%</span>
+        </div>
+      </div>
+      <div class="aging-chart-card">
+        <div class="aging-chart-header">
+          <span>Bench Aging Distribution</span>
+          <strong>{{ totalCount() }} employees</strong>
+        </div>
+        <div class="aging-chart">
+          <div class="resource-chart-area">
+            <div class="resource-chart-axis">
+              <div class="axis-ticks">
+                <span *ngFor="let tick of getAgingTicks()">{{ tick }}</span>
+              </div>
+            </div>
+            <div class="resource-chart-body">
+              <div class="resource-chart-bars"
+                [ngStyle]="{'gridTemplateColumns': 'repeat(' + getAgingBuckets().length + ', minmax(80px, 1fr))'}">
+                <div class="resource-chart-bar" *ngFor="let bucket of getAgingBuckets()">
+                  <div class="resource-bar-fill aging-bar-fill" [ngClass]="bucket.color"
+                    [style.height.%]="bucket.barHeight">
+                    <div class="resource-bar-value">{{ bucket.count }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="resource-bar-labels-row"
+                [ngStyle]="{'gridTemplateColumns': 'repeat(' + getAgingBuckets().length + ', minmax(80px, 1fr))'}">
+                <span class="resource-bar-label" *ngFor="let bucket of getAgingBuckets()">{{ bucket.label }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="aging-insight">
+          {{ getAgingInsightText() }}
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- <div class="insight-card">
+    <div class="card-header">
+      <h2>Long bench duration by employee</h2>
+    </div>
+    @if (loading()) {
+    <div class="card-loader">
+      <div class="spinner"></div>Loading employees...
+    </div>
+    } @else {
+    <div class="duration-table">
+      <div class="duration-row duration-header">
+        <div class="duration-name">Employee Name</div>
+        <div class="duration-tech">Technology</div>
+        <div class="duration-value">Duration</div>
+        <div class="duration-risk">Risk</div>
+      </div>
+      <div class="duration-row" *ngFor="let item of longestBenchEmployees()">
+        <div class="duration-name">{{ item.employeeName }}</div>
+        <div class="duration-tech">{{ item.technology }}</div>
+        <div class="duration-value">{{ formatDuration(item.durationCount) }}</div>
+        <div class="duration-risk">
+          <span class="risk-badge" [ngClass]="getRisk(item)">{{ getRisk(item) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="duration-insight">
+      {{ getDurationInsightText() }}
+    </div>
+    }
+  </div> -->
+</div>
+
+<section class="table-card">
+  <div class="table-header-toolbar">
+    <div class="table-title-area">
+      <div class="table-title-main">
+        <span>Bench Employee Details</span>
+        <span class="count-badge" *ngIf="!loading()">
+          <span *ngIf="isAnyFilterActive()">{{ totalFilteredCount() }} of {{ totalCount() }}</span>
+          <span *ngIf="!isAnyFilterActive()">{{ totalCount() }} Total</span>
+        </span>
+      </div>
+      <p class="table-subtitle">Search, filter, group, sort, and export bench resource records</p>
+    </div>
+
+    <div class="table-top-actions">
+      <!-- Search Input -->
+      <div class="table-search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" placeholder="Search by name, skill, BU, location..." [ngModel]="tableSearchQuery()"
+          (ngModelChange)="tableSearchQuery.set($event); tableCurrentPage.set(1)" />
+        <button *ngIf="tableSearchQuery()" class="clear-search-btn"
+          (click)="tableSearchQuery.set(''); tableCurrentPage.set(1)" title="Clear search">
+          ✕
+        </button>
+      </div>
+
+      <!-- Group By Selector -->
+      <div class="table-action-control">
+        <label for="groupBySelect" class="control-label">Group By:</label>
+        <select id="groupBySelect" class="table-select" [ngModel]="tableGroupBy()" (ngModelChange)="setGroupBy($event)">
+          <option value="none">None (Flat List)</option>
+          <option value="technology">Technology</option>
+          <option value="businessUnit">Business Unit</option>
+          <option value="location">Location</option>
+          <option value="risk">Risk Level</option>
+        </select>
+      </div>
+
+      <!-- Export to CSV Button -->
+      <button class="btn-action btn-export" (click)="exportToCsv()" [disabled]="loading() || totalFilteredCount() === 0"
+        title="Export current list to CSV">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Export CSV</span>
+      </button>
+
+      <!-- Reset Filters Button -->
+      <button *ngIf="isAnyFilterActive()" class="btn-action btn-reset" (click)="resetTableFilters()"
+        title="Reset all search filters">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+          <path d="M3 3v5h5"></path>
+        </svg>
+        <span>Reset Filters</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Row -->
+  <div class="table-filters-bar" *ngIf="!loading()">
+    <div class="filter-group">
+      <span class="filter-group-label">Quick Filters:</span>
+
+      <!-- Tech Filter -->
+      <div class="filter-item">
+        <select class="filter-select" [ngModel]="tableTechFilter()"
+          (ngModelChange)="tableTechFilter.set($event); tableCurrentPage.set(1)">
+          <option value="ALL">All Technologies</option>
+          <option *ngFor="let tech of filterOptions().technologies" [value]="tech">{{ tech }}</option>
+        </select>
+      </div>
+
+      <!-- Business Unit Filter -->
+      <div class="filter-item">
+        <select class="filter-select" [ngModel]="tableBuFilter()"
+          (ngModelChange)="tableBuFilter.set($event); tableCurrentPage.set(1)">
+          <option value="ALL">All Business Units</option>
+          <option *ngFor="let bu of filterOptions().businessUnits" [value]="bu">{{ bu }}</option>
+        </select>
+      </div>
+
+      <!-- Location Filter -->
+      <div class="filter-item">
+        <select class="filter-select" [ngModel]="tableLocationFilter()"
+          (ngModelChange)="tableLocationFilter.set($event); tableCurrentPage.set(1)">
+          <option value="ALL">All Locations</option>
+          <option *ngFor="let loc of filterOptions().locations" [value]="loc">{{ loc }}</option>
+        </select>
+      </div>
+
+      <!-- Risk Filter -->
+      <div class="filter-item">
+        <select class="filter-select" [ngModel]="tableRiskFilter()"
+          (ngModelChange)="tableRiskFilter.set($event); tableCurrentPage.set(1)">
+          <option value="ALL">All Risk Levels</option>
+          <option value="Critical">Critical (>45d)</option>
+          <option value="Medium">Medium (15-45d)</option>
+          <option value="Low">Low (&le;15d)</option>
+        </select>
+      </div>
+
+      <!-- Experience Filter -->
+      <div class="filter-item">
+        <select class="filter-select" [ngModel]="tableExpFilter()"
+          (ngModelChange)="tableExpFilter.set($event); tableCurrentPage.set(1)">
+          <option value="ALL">All Experience</option>
+          <option value="0-2">0 - 2 Years</option>
+          <option value="2-5">2 - 5 Years</option>
+          <option value="5-10">5 - 10 Years</option>
+          <option value="10+">10+ Years</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group-toggle-actions" *ngIf="tableGroupBy() !== 'none'">
+      <button class="btn-link" (click)="expandAllGroups()">Expand All</button>
+      <span class="divider">|</span>
+      <button class="btn-link" (click)="collapseAllGroups()">Collapse All</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="card-loader">
+    <div class="spinner"></div>Loading employee details...
+  </div>
+  } @else {
+  <div class="table-wrapper">
+    <!-- FLAT VIEW (When Group By = 'none') -->
+    <ng-container *ngIf="tableGroupBy() === 'none'">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable-th" (click)="onSort('employeeName')">
+              <div class="th-content">
+                <span>Employee Name</span>
+                <span class="sort-icon" [class.active]="tableSortColumn() === 'employeeName'">
+                  {{ tableSortColumn() === 'employeeName' ? (tableSortDirection() === 'asc' ? '▲' : '▼') : '↕' }}
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="onSort('technology')">
+              <div class="th-content">
+                <span>Technology</span>
+                <span class="sort-icon" [class.active]="tableSortColumn() === 'technology'">
+                  {{ tableSortColumn() === 'technology' ? (tableSortDirection() === 'asc' ? '▲' : '▼') : '↕' }}
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="onSort('experience')">
+              <div class="th-content">
+                <span>Experience (Yrs)</span>
+                <span class="sort-icon" [class.active]="tableSortColumn() === 'experience'">
+                  {{ tableSortColumn() === 'experience' ? (tableSortDirection() === 'asc' ? '▲' : '▼') : '↕' }}
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="onSort('businessUnit')">
+              <div class="th-content">
+                <span>Business Unit</span>
+                <span class="sort-icon" [class.active]="tableSortColumn() === 'businessUnit'">
+                  {{ tableSortColumn() === 'businessUnit' ? (tableSortDirection() === 'asc' ? '▲' : '▼') : '↕' }}
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="onSort('durationCount')">
+              <div class="th-content">
+                <span>Duration</span>
+                <span class="sort-icon" [class.active]="tableSortColumn() === 'durationCount'">
+                  {{ tableSortColumn() === 'durationCount' ? (tableSortDirection() === 'asc' ? '▲' : '▼') : '↕' }}
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="onSort('location')">
+              <div class="th-content">
+                <span>Location</span>
+                <span class="sort-icon" [class.active]="tableSortColumn() === 'location'">
+                  {{ tableSortColumn() === 'location' ? (tableSortDirection() === 'asc' ? '▲' : '▼') : '↕' }}
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="onSort('risk')">
+              <div class="th-content">
+                <span>Risk</span>
+                <span class="sort-icon" [class.active]="tableSortColumn() === 'risk'">
+                  {{ tableSortColumn() === 'risk' ? (tableSortDirection() === 'asc' ? '▲' : '▼') : '↕' }}
+                </span>
+              </div>
+            </th>
+            <th>RMG Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of paginatedFlatData()">
+            <td class="employee-cell">
+              <div class="emp-name">{{ item.employeeName }}</div>
+              <div class="emp-code" *ngIf="item.employeecode">#{{ item.employeecode }}</div>
+            </td>
+            <td><span class="tech-badge">{{ item.technology }}</span></td>
+            <td class="exp-cell">
+              <span class="exp-number">{{ formatExperience(item.experience) }}</span>
+            </td>
+            <td>{{ item.businessUnit }}</td>
+            <td class="duration-cell">{{ formatDuration(item.durationCount) }}</td>
+            <td>{{ item.location }}</td>
+            <td><span class="risk-badge" [ngClass]="getRisk(item)">{{ getRisk(item) }}</span></td>
+            <td class="comment-cell">{{ item.rmgComments || '-' }}</td>
+          </tr>
+          <tr *ngIf="paginatedFlatData().length === 0">
+            <td colspan="8" class="no-data-cell">
+              <div class="empty-state">
+                <span class="empty-icon">🔍</span>
+                <p>No matching bench employees found.</p>
+                <button class="btn-link" (click)="resetTableFilters()">Clear all filters</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+
+    <!-- GROUPED VIEW (When Group By != 'none') -->
+    <ng-container *ngIf="tableGroupBy() !== 'none'">
+      <div class="grouped-container">
+        <div *ngIf="tableGroups().length === 0" class="empty-state">
+          <span class="empty-icon">🔍</span>
+          <p>No matching bench employees found.</p>
+          <button class="btn-link" (click)="resetTableFilters()">Clear all filters</button>
+        </div>
+
+        <div class="group-section" *ngFor="let group of tableGroups()">
+          <div class="group-header" (click)="toggleGroupCollapse(group.key)"
+            [class.collapsed]="isGroupCollapsed(group.key)">
+            <div class="group-header-left">
+              <span class="group-chevron">{{ isGroupCollapsed(group.key) ? '▶' : '▼' }}</span>
+              <span class="group-title">{{ group.label }}</span>
+              <span class="group-count-pill">{{ group.count }} employee{{ group.count > 1 ? 's' : '' }}</span>
+            </div>
+            <div class="group-header-right">
+              <span class="group-stat">Avg Exp: <strong>{{ group.avgExperience }} yrs</strong></span>
+              <span class="group-stat">Avg Duration: <strong>{{ group.avgDuration }} days</strong></span>
+            </div>
+          </div>
+
+          <div class="group-body" *ngIf="!isGroupCollapsed(group.key)">
+            <table>
+              <thead>
+                <tr>
+                  <th class="sortable-th" (click)="onSort('employeeName')">Employee Name</th>
+                  <th class="sortable-th" (click)="onSort('technology')">Technology</th>
+                  <th class="sortable-th" (click)="onSort('experience')">Experience (Yrs)</th>
+                  <th class="sortable-th" (click)="onSort('businessUnit')">Business Unit</th>
+                  <th class="sortable-th" (click)="onSort('durationCount')">Duration</th>
+                  <th class="sortable-th" (click)="onSort('location')">Location</th>
+                  <th class="sortable-th" (click)="onSort('risk')">Risk</th>
+                  <th>RMG Comment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of group.items">
+                  <td class="employee-cell">
+                    <div class="emp-name">{{ item.employeeName }}</div>
+                    <div class="emp-code" *ngIf="item.employeecode">#{{ item.employeecode }}</div>
+                  </td>
+                  <td><span class="tech-badge">{{ item.technology }}</span></td>
+                  <td class="exp-cell">
+                    <span class="exp-number">{{ formatExperience(item.experience) }}</span>
+                  </td>
+                  <td>{{ item.businessUnit }}</td>
+                  <td class="duration-cell">{{ formatDuration(item.durationCount) }}</td>
+                  <td>{{ item.location }}</td>
+                  <td><span class="risk-badge" [ngClass]="getRisk(item)">{{ getRisk(item) }}</span></td>
+                  <td class="comment-cell">{{ item.rmgComments || '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Pagination Bar (For Flat View) -->
+  <div class="table-pagination-footer" *ngIf="tableGroupBy() === 'none' && totalFilteredCount() > 0">
+    <div class="pagination-info">
+      Showing
+      <strong>{{ (tableCurrentPage() - 1) * tablePageSize() + 1 }}</strong>
+      to
+      <strong>{{ tablePageSize() === -1 ? totalFilteredCount() : Math.min(tableCurrentPage() * tablePageSize(),
+        totalFilteredCount()) }}</strong>
+      of
+      <strong>{{ totalFilteredCount() }}</strong> entries
+    </div>
+
+    <div class="pagination-controls">
+      <div class="page-size-selector">
+        <span>Rows per page:</span>
+        <select [ngModel]="tablePageSize()" (ngModelChange)="onPageSizeChange($event)" class="page-size-select">
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+          <option [value]="-1">All</option>
+        </select>
+      </div>
+
+      <div class="pagination-pages" *ngIf="tablePageSize() !== -1 && totalPages() > 1">
+        <button class="page-btn nav-btn" [disabled]="tableCurrentPage() === 1" (click)="setPage(tableCurrentPage() - 1)"
+          title="Previous page">
+          ‹
+        </button>
+
+        <button *ngFor="let page of getPageNumbers()" class="page-btn" [class.active]="tableCurrentPage() === page"
+          (click)="setPage(page)">
+          {{ page }}
+        </button>
+
+        <button class="page-btn nav-btn" [disabled]="tableCurrentPage() === totalPages()"
+          (click)="setPage(tableCurrentPage() + 1)" title="Next page">
+          ›
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</section>
+<!-- </section> -->

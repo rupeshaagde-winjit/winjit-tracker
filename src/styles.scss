@@ -1,0 +1,821 @@
+/* You can add global styles to this file, and also import other style files */
+
+.executive-block {
+  margin-bottom: 1.5rem;
+  border: 1px solid #ECECEC;
+  padding: 1.125rem;
+}
+
+.executive-overview-block {
+  border-radius: 0.25rem;
+  padding: 1.125rem;
+  background-color: #E3F0FF;
+  margin-bottom: 1.125rem;
+}
+
+.section-head {
+  margin: 0 -1.125rem 1rem;
+  padding: 0 1.125rem 1rem;
+  border-bottom: 1px solid #ECECEC;
+}
+
+.section-label {
+  margin: 0;
+  // font-family: Inter;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  font-weight: 700;
+  // text-transform: uppercase;
+  color: #034EA2;
+}
+
+.executive-insights-grid,
+.overview-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.executive-insights-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.insight-panel {
+  border-radius: .25rem;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  padding: 0.75rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 115px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.insight-panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+// .insight-icon {
+//   width: 1.6rem;
+//   height: 1.6rem;
+// }
+
+.insight-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  background: #D4E9FF;
+  color: #010101;
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+
+.insight-panel-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.insight-question {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.insight-answer {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  color: #6B7280;
+  flex-grow: 1;
+}
+
+.overview-grid {
+  padding: 1.5rem 0 0;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.overview-card {
+  // border-radius: 1rem;
+  // background: #eaf2ff;
+  // border: 1px solid #dbeafe;
+  // padding: 1.25rem;
+  // min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.overview-card strong {
+  display: block;
+  margin-bottom: 0.125rem;
+  font-size: 1.5rem;
+  color: #111827;
+}
+
+.overview-card span {
+  color: #54595E;
+  font-size: 0.75rem;
+}
+
+.heatmap-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.heatmap-summary-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 0.25rem;
+}
+
+.heatmap-summary p {
+  margin: 0;
+  color: #334155;
+  font-weight: 700;
+}
+
+.heatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #111827;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.legend-chip.healthy {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.28);
+  color: #1d4ed8;
+}
+
+.legend-chip.watch {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.38);
+  color: #92400e;
+}
+
+.legend-chip.at-risk {
+  background: rgba(251, 112, 28, 0.2);
+  border-color: rgba(251, 112, 28, 0.38);
+  color: #9a3412;
+}
+
+.legend-chip.critical {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.32);
+  color: #b91c1c;
+}
+
+.heatmap-table {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.heatmap-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(5, minmax(0, 1fr));
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+}
+
+.heatmap-row.header {
+  border-bottom: 1px solid #e5e7eb;
+  color: #475569;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.heatmap-row:not(.header) {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.heatmap-row:last-child {
+  border-bottom: none;
+}
+
+.technology-name {
+  font-weight: 700;
+  color: #111827;
+}
+
+.heat-cell {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border-radius: 1rem;
+  min-height: 2.5rem;
+  color: #0f172a;
+  font-weight: 700;
+  display: grid;
+  grid-column: 2;
+  /* align labels with the chart area (second column) */
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0;
+  padding: 0 0.5rem 0 1.25rem;
+  /* leave left padding so labels clear the axis */
+  margin-top: 0.25rem;
+  justify-items: center;
+}
+
+.heat-cell.watch {
+  background: rgba(251, 191, 36, 0.2);
+  color: #92400e;
+}
+
+.heat-cell.at-risk {
+  background: rgba(251, 112, 28, 0.22);
+  color: #c2410c;
+}
+
+.heat-cell.critical {
+  background: rgba(248, 113, 113, 0.24);
+  color: #991b1b;
+}
+
+.heat-total {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.resource-trend-section {
+  margin-bottom: 1.5rem;
+}
+
+.resource-card {
+  border: 4px solid #0b84ff;
+  // padding: 0.75rem;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.section-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.resource-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  padding: 1rem 1.5rem 0;
+}
+
+.resource-unit-card {
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.unit-name {
+  display: block;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.unit-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.unit-values strong {
+  display: block;
+  font-size: 1.45rem;
+  color: #111827;
+}
+
+.unit-values span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.billable-value {
+  color: #059669 !important;
+}
+
+.bench-value {
+  color: #ef4444 !important;
+}
+
+.bench-monthly-value {
+  color: #034EA2 !important;
+}
+
+.resource-chart {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.resource-chart-area {
+  display: grid;
+  grid-template-columns: minmax(0, 3.2rem) minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.5rem 0 0;
+}
+
+.resource-chart-axis {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  position: relative;
+}
+
+.resource-chart-axis .axis-label {
+  writing-mode: vertical-rl;
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 700;
+  position: absolute;
+  left: 0.2rem;
+  transform: rotate(180deg) translateX(50%);
+  top: 50%;
+  margin-top: -12px;
+}
+
+.resource-chart-axis .axis-ticks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  height: 200px;
+  justify-content: space-between;
+}
+
+.resource-chart-axis .axis-ticks span {
+  padding-right: 0.5rem;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.resource-chart-body {
+  position: relative;
+}
+
+.resource-chart-bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: flex-end;
+  height: 200px;
+  position: relative;
+  padding: 0 0.5rem;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+/* Each column is just a flex column ending at the x-axis */
+.resource-chart-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+}
+
+/* The bar fill grows from the x-axis upward; tooltip lives at its top */
+.resource-bar-fill {
+  position: relative;
+  width: 46px;
+  max-width: 46px;
+  background: linear-gradient(180deg, #0b63b9 0%, #074ea6 100%);
+  border-radius: 6px 6px 0 0;
+  box-shadow: 0 2px 0 rgba(7, 78, 166, 0.12) inset;
+  transition: filter 0.15s ease;
+
+  &:hover {
+    filter: brightness(1.15);
+
+    .resource-bar-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+  }
+}
+
+/* Value always visible directly above the top of the bar */
+.resource-bar-value {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tooltip appears at the very top of the bar fill */
+.resource-bar-tooltip {
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: #1e293b;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 20;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1e293b;
+  }
+}
+
+/* Labels sit in a separate row below the x-axis border */
+.resource-bar-labels-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0 0.5rem;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.resource-bar-label {
+  color: #64748b;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.resource-bar-value {
+  color: #111827;
+  font-weight: 700;
+}
+
+.resource-insight,
+.trend-insight {
+  margin: 0 1.5rem 1.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f0f7ff;
+  color: #0b3b66;
+  font-size: 0.95rem;
+  border: 1px solid #dbeafe;
+}
+
+.trend-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+  padding: 1rem 1.5rem 0;
+}
+
+.trend-metric {
+  border-radius: 1rem;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 1rem;
+  text-align: center;
+}
+
+.trend-metric strong {
+  display: block;
+  font-size: 1.5rem;
+  color: #111827;
+  margin-bottom: 0.35rem;
+}
+
+.trend-metric span {
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.trend-chart {
+  display: grid;
+  /* match the resource chart left column so the vertical label lines up the same */
+  grid-template-columns: minmax(0, 3.2rem) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.5rem 0;
+  min-height: 220px;
+  align-items: stretch;
+}
+
+.trend-chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  color: #64748b;
+  font-size: 0.75rem;
+  position: relative;
+  height: 100%;
+}
+
+.trend-chart-axis .axis-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 700;
+  position: absolute;
+  left: 0.2rem;
+  top: 50%;
+  transform: rotate(180deg) translateY(-50%);
+}
+
+.trend-chart-axis .axis-ticks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  height: 100%;
+  justify-content: space-between;
+  padding-right: 0.5rem;
+}
+
+.trend-chart-axis .axis-ticks span {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.trend-chart-body {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.trend-svg {
+  width: 100%;
+  height: 180px;
+  display: block;
+}
+
+.trend-svg polyline {
+  stroke-width: 2;
+}
+
+.trend-svg circle {
+  r: 1.5;
+}
+
+.trend-svg path {
+  stroke-width: 2.2;
+}
+
+.trend-svg circle {
+  r: 2;
+}
+
+/* horizontal gridlines behind trend chart */
+.trend-chart-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to bottom, transparent 80%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 60%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 40%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 20%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 0%, #e2e8f0 1px);
+  background-size: 100% 20%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.trend-chart-body svg {
+  position: relative;
+  z-index: 2;
+}
+
+.trend-chart-body {
+  position: relative;
+  z-index: 1;
+}
+
+.trend-svg path {
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.trend-chart-axis {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  position: relative;
+}
+
+.trend-chart-axis .axis-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg) translateY(-50%);
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 700;
+  position: absolute;
+  left: 0.2rem;
+  top: 50%;
+}
+
+.trend-chart-axis .axis-ticks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.trend-chart-axis .axis-ticks span {
+  padding-right: 0.5rem;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.trend-points,
+.trend-point,
+.trend-point::before,
+.trend-dot,
+.trend-value,
+.trend-label {
+  display: none;
+}
+
+.aging-chart {
+  /* Uses resource-chart-area internally — no extra grid needed here */
+}
+
+/* Force aging buckets to always render in a single row of 4 columns */
+.aging-chart .resource-chart-bars {
+  grid-template-columns: repeat(4, minmax(80px, 1fr));
+  gap: 1.25rem;
+}
+
+.aging-chart .resource-bar-labels-row {
+  grid-template-columns: repeat(4, minmax(80px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Risk-color variants for aging bars — override the blue default */
+.aging-bar-fill {
+  &.healthy {
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  }
+
+  &.watch {
+    background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%);
+  }
+
+  &.at-risk {
+    background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%);
+  }
+
+  &.critical {
+    background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
+  }
+}
+
+.aging-chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.aging-chart-axis span {
+  display: inline-block;
+  padding-right: 0.5rem;
+}
+
+.aging-chart-columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: end;
+  position: relative;
+}
+
+.aging-chart-columns::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to bottom, transparent 80%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 60%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 40%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 20%, #e2e8f0 1px),
+    linear-gradient(to bottom, transparent 0%, #e2e8f0 1px);
+  background-size: 100% 20%;
+  pointer-events: none;
+}
+
+.aging-column {
+  display: grid;
+  gap: 0.5rem;
+  align-items: end;
+  position: relative;
+}
+
+.aging-column-bar {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.aging-column-fill {
+  width: 72%;
+  border-radius: 0.5rem;
+  transition: height 0.25s ease;
+}
+
+.aging-column-fill.healthy {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.16), rgba(37, 99, 235, 0.24));
+}
+
+.aging-column-fill.watch {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.16), rgba(245, 158, 11, 0.22));
+}
+
+.aging-column-fill.at-risk {
+  background: linear-gradient(180deg, rgba(251, 112, 28, 0.16), rgba(194, 65, 12, 0.22));
+}
+
+.aging-column-fill.critical {
+  background: linear-gradient(180deg, rgba(248, 113, 113, 0.16), rgba(185, 28, 28, 0.22));
+}
+
+/* Ensure trend chart places labels in a bottom row that clears the left axis */
+.trend-chart {
+  grid-template-rows: 1fr auto;
+}
+
+.trend-chart-axis,
+.trend-chart-body {
+  grid-row: 1;
+}
+
+.trend-chart-labels {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.75rem 0 2rem;
+  /* left padding to clear axis */
+  margin-top: 0.25rem;
+}
+
+.trend-chart-labels span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
