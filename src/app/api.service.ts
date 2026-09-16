@@ -20,10 +20,17 @@ export interface BusinessUnitHeadcount {
   headcount: number;
 }
 
+export interface MonthlyBenchEntry {
+  month: string;
+  tech: Record<string, number>;
+  bu: Record<string, number>;
+}
+
 export interface DashboardResult {
   employees: BenchDetail[];
   headcounts?: BusinessUnitHeadcount[];
   overallCounts?: number;
+  bench?: MonthlyBenchEntry[];
 }
 
 export interface ApiResponse {

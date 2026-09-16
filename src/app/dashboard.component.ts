@@ -3,7 +3,7 @@ import { Component, computed, signal, Input } from '@angular/core';
 import { AppChart } from '../sharedComponent/chart.component';
 import { BenchTechBubbleChartComponent } from './bench-tech-bubble-chart/bench-tech-bubble-chart.component';
 import { FormsModule } from '@angular/forms';
-import { ApiService, ApiResponse, BenchDetail, BusinessUnitHeadcount } from './api.service';
+import { ApiService, ApiResponse, BenchDetail, BusinessUnitHeadcount, MonthlyBenchEntry } from './api.service';
 
 type RiskLevel = 'Critical' | 'Medium' | 'Low';
 
@@ -28,6 +28,7 @@ export class DashboardComponent {
   readonly benchDetails = signal<BenchDetail[]>([]);
   readonly headcounts = signal<BusinessUnitHeadcount[]>([]);
   readonly overallCounts = signal<number>(0);
+  readonly monthlyBenchHistory = signal<MonthlyBenchEntry[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
 
@@ -362,6 +363,7 @@ export class DashboardComponent {
         this.benchDetails.set(employees);
         this.headcounts.set(data.result?.headcounts || []);
         this.overallCounts.set(data.result?.overallCounts || 0);
+        this.monthlyBenchHistory.set(data.result?.bench || []);
         this.loading.set(false);
       },
       error: (err) => {
@@ -799,24 +801,58 @@ export class DashboardComponent {
   }
 
   getBenchTrendSeries(): Array<{ label: string; value: number; height: number }> {
-    const total = this.totalCount();
-    const monthLabels = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
-    if (!total) {
-      return monthLabels.map((label) => ({ label, value: 0, height: 0 }));
+    const history = this.monthlyBenchHistory();
+    const selectedTech = this.selectedTechSignal();
+    const selectedBu = this.selectedBuSignal();
+
+    if (!history || history.length === 0) {
+      const fallbackTotal = this.filteredBenchDetails().length;
+      return [{
+        label: 'Current',
+        value: fallbackTotal > 0 ? fallbackTotal : 0,
+        height: fallbackTotal > 0 ? 100 : 0
+      }];
     }
 
-    const offsets = [-18, 10, -8, 14, -10, 12, -6, 10, -4, 8, -2, 0];
-    const values = offsets.map((offset, index) => {
-      const value = Math.max(8, Math.round(total + offset + (index % 2 === 0 ? -2 : 2)));
-      return value;
-    });
-    values[values.length - 1] = total;
+    const normalizedHistory = history
+      .map((entry) => {
+        const monthLabel = (entry.month || '').replace(/\d{4}$/g, '').trim() || 'N/A';
+        const yearLabel = (entry.month || '').match(/(\d{4})$/)?.[1] || '';
+        const fullLabel = monthLabel && yearLabel ? `${monthLabel} ${yearLabel}` : monthLabel;
 
-    const maxValue = Math.max(...values, total, 1);
-    return monthLabels.map((label, index) => ({
-      label,
-      value: values[index],
-      height: Math.round((values[index] / maxValue) * 100)
+        let value = 0;
+
+        if (selectedTech !== 'ALL') {
+          value = Number(entry.tech?.[selectedTech] ?? 0);
+        } else if (selectedBu !== 'ALL') {
+          value = Number(entry.bu?.[selectedBu] ?? 0);
+        } else {
+          value = Object.values(entry.bu || {}).reduce((sum, count) => sum + (Number(count) || 0), 0);
+        }
+
+        if (selectedTech !== 'ALL' && selectedBu !== 'ALL') {
+          const techCount = Number(entry.tech?.[selectedTech] ?? 0);
+          const buCount = Number(entry.bu?.[selectedBu] ?? 0);
+          value = Math.min(techCount, buCount) || 0;
+        }
+
+        return {
+          label: fullLabel,
+          value,
+          height: 0
+        };
+      })
+      .filter((entry) => entry.label && entry.label !== 'N/A');
+
+    if (!normalizedHistory.length) {
+      return [{ label: 'No data', value: 0, height: 0 }];
+    }
+
+    const maxValue = Math.max(...normalizedHistory.map((point) => point.value), 1);
+    return normalizedHistory.map((point) => ({
+      label: point.label,
+      value: point.value,
+      height: Math.round((point.value / maxValue) * 100)
     }));
   }
 

@@ -79,12 +79,26 @@ import { ApiService } from './api.service';
           <div class="date-fields">
             <label class="filter-field date-field">
               <span>From</span>
-              <input type="date" #fromInput [value]="selectedFromDate" (change)="selectedFromDate = fromInput.value" />
+              <input
+                type="date"
+                #fromInput
+                [value]="selectedFromDate"
+                [min]="sixMonthsMinDate"
+                [max]="todayDate"
+                (change)="onDateChange('from', fromInput.value, fromInput)"
+              />
             </label>
 
             <label class="filter-field date-field">
               <span>To</span>
-              <input type="date" #toInput [value]="selectedToDate" (change)="selectedToDate = toInput.value" />
+              <input
+                type="date"
+                #toInput
+                [value]="selectedToDate"
+                [min]="sixMonthsMinDate"
+                [max]="todayDate"
+                (change)="onDateChange('to', toInput.value, toInput)"
+              />
             </label>
           </div>
         </div>
@@ -421,6 +435,16 @@ export class BenchTabsComponent implements OnInit {
     });
   }
 
+  get todayDate(): string {
+    return this.formatDateInput(new Date());
+  }
+
+  get sixMonthsMinDate(): string {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 6);
+    return this.formatDateInput(date);
+  }
+
   get activeFilterCount(): number {
     let count = 0;
     if (this.selectedFromDate) count++;
@@ -428,6 +452,51 @@ export class BenchTabsComponent implements OnInit {
     if (this.selectedTech && this.selectedTech !== 'ALL') count++;
     if (this.selectedBu && this.selectedBu !== 'ALL') count++;
     return count;
+  }
+
+  onDateChange(type: 'from' | 'to', value: string, input: HTMLInputElement): void {
+    const normalized = this.clampDateWithinRange(value);
+    if (type === 'from') {
+      this.selectedFromDate = normalized;
+      if (this.selectedToDate && normalized > this.selectedToDate) {
+        this.selectedToDate = normalized;
+      }
+    } else {
+      this.selectedToDate = normalized;
+      if (this.selectedFromDate && normalized < this.selectedFromDate) {
+        this.selectedFromDate = normalized;
+      }
+    }
+    input.value = normalized;
+  }
+
+  private clampDateWithinRange(value: string): string {
+    if (!value) return '';
+
+    const minDate = new Date(this.sixMonthsMinDate);
+    const maxDate = new Date(this.todayDate);
+    const inputDate = new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(inputDate.getTime())) {
+      return '';
+    }
+
+    if (inputDate < minDate) {
+      return this.formatDateInput(minDate);
+    }
+
+    if (inputDate > maxDate) {
+      return this.formatDateInput(maxDate);
+    }
+
+    return value;
+  }
+
+  private formatDateInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   resetFilters(fromInput: HTMLInputElement, toInput: HTMLInputElement): void {
