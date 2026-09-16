@@ -5,8 +5,5 @@
   "assets": {
     "directory": "./dist/dashboard-app/browser",
     "not_found_handling": "single-page-application"
-  },
-  "build": {
-    "command": "npm run build"
   }
 }
