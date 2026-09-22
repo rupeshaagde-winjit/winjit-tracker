@@ -2,13 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DashboardComponent } from './dashboard.component';
-import { TabPlaceholderComponent } from './tab-placeholder.component';
 import { ApiService } from './api.service';
 
 @Component({
   selector: 'app-bench-tabs',
   standalone: true,
-  imports: [CommonModule, FormsModule, DashboardComponent, TabPlaceholderComponent],
+  imports: [CommonModule, FormsModule, DashboardComponent],
   template: `
     <section class="tab-shell">
     <img class="winjit-icon" src="/assets/icons/winjit_logo.svg" alt="Location icon" />
@@ -122,15 +121,6 @@ import { ApiService } from './api.service';
               [selectedTech]="selectedTech"
               [selectedBu]="selectedBu"
             ></app-dashboard>
-          }
-          @case ('Closure Report') {
-            <app-tab-placeholder [title]="'Closure Report'"></app-tab-placeholder>
-          }
-          @case ('Non-billable Workforce') {
-            <app-tab-placeholder [title]="'Non-billable Workforce'"></app-tab-placeholder>
-          }
-          @case ('Allocation Forecast') {
-            <app-tab-placeholder [title]="'Allocation Forecast'"></app-tab-placeholder>
           }
         }
       </div>
@@ -389,7 +379,7 @@ import { ApiService } from './api.service';
   `
 })
 export class BenchTabsComponent implements OnInit {
-  readonly tabs = ['Bench Summary', 'Closure Report', 'Non-billable Workforce', 'Allocation Forecast'];
+  readonly tabs = ['Bench Summary'];
   selectedTab = 'Bench Summary';
 
   selectedFromDate = '';
