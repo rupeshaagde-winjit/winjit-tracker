@@ -141,7 +141,11 @@
   min-height: 340px;
 }
 
-.bubble-chart-note {
+.bubble-chart-note,
+.resource-insight,
+.trend-insight,
+.aging-insight,
+.duration-insight {
   margin: 0.5rem 1.25rem 1.25rem;
   padding: 0.85rem 1.1rem;
   border-radius: 8px;
@@ -460,16 +464,7 @@
   justify-self: end;
 }
 
-.duration-insight,
-.aging-insight {
-  margin-top: 1rem;
-  padding: 1rem 1.25rem;
-  border-radius: 1rem;
-  background: #eff6ff;
-  color: #1e293b;
-  font-size: 0.95rem;
-  border: 1px solid #dbeafe;
-}
+
 
 .table-card {
   overflow: hidden;

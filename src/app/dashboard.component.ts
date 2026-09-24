@@ -563,14 +563,53 @@ export class DashboardComponent {
       .slice(0, 6);
   });
 
+  private formatNameList(items: string[]): string {
+    if (!items.length) return '';
+    if (items.length === 1) return items[0];
+    if (items.length === 2) return `${items[0]} and ${items[1]}`;
+    return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+  }
+
   getAgingInsightText(): string {
     const buckets = this.getAgingBuckets();
     if (!buckets.length) {
-      return 'Insight: No bench aging data is available.';
+      return 'No bench aging data is available.';
     }
 
-    const topBucket = buckets.reduce((max, bucket) => (bucket.count > max.count ? bucket : max), buckets[0]);
-    return `Insight: ${topBucket.label} has the highest bench concentration with ${topBucket.count} employee${topBucket.count !== 1 ? 's' : ''} in the ${topBucket.range} bucket.`;
+    const maxCount = Math.max(...buckets.map((b) => b.count));
+    if (maxCount === 0) {
+      return 'No bench employees are currently in aging buckets.';
+    }
+
+    const tied = buckets.filter((b) => b.count === maxCount);
+    if (tied.length > 1) {
+      const labels = this.formatNameList(tied.map((b) => b.label));
+      return `${labels} have the same highest bench concentration with ${maxCount} employees each.`;
+    }
+
+    const topBucket = tied[0];
+    return `${topBucket.label} has the highest bench concentration with ${topBucket.count} employee${topBucket.count !== 1 ? 's' : ''} in the ${topBucket.range} bucket.`;
+  }
+
+  getExperienceInsightText(): string {
+    const buckets = this.getExperienceBuckets();
+    if (!buckets.length) {
+      return 'No experience data is available.';
+    }
+
+    const maxCount = Math.max(...buckets.map((b) => b.count));
+    if (maxCount === 0) {
+      return 'No bench employees are currently in experience buckets.';
+    }
+
+    const tied = buckets.filter((b) => b.count === maxCount);
+    if (tied.length > 1) {
+      const labels = this.formatNameList(tied.map((b) => b.label));
+      return `${labels} have the same highest bench concentration with ${maxCount} employees each.`;
+    }
+
+    const topBucket = tied[0];
+    return `${topBucket.label} has the highest bench concentration with ${topBucket.count} employee${topBucket.count !== 1 ? 's' : ''} (${topBucket.percent}% of bench).`;
   }
 
   estimatedTotalWorkforce(): number {
@@ -624,6 +663,19 @@ export class DashboardComponent {
       return 'No bench technology data is available.';
     }
 
+    const maxCount = techs[0].count;
+    if (maxCount === 0) {
+      return 'No bench employees match the selected criteria.';
+    }
+
+    const tied = techs.filter((t) => t.count === maxCount);
+    if (tied.length > 1) {
+      const names = this.formatNameList(tied.map((t) => t.key));
+      const rest = techs.filter((t) => t.count < maxCount).slice(0, 3).map((item) => item.key);
+      const restText = rest.length ? ` followed by ${this.formatNameList(rest)}` : '';
+      return `${names} have the same highest bench concentration with ${maxCount} employees each${restText}.`;
+    }
+
     const top = techs[0];
     const rest = techs.slice(1, 4).map((item) => item.key);
     const restText = rest.length ? ` followed by ${rest.join(', ')}` : '';
@@ -644,20 +696,26 @@ export class DashboardComponent {
       .map(([location, count]) => ({ location, count }))
       .sort((a, b) => b.count - a.count);
 
+    if (!sortedLocations.length) {
+      return 'No bench location data is available.';
+    }
+
     const longestBenchLocations = this.filteredBenchDetails().filter((item) => item.durationCount > 45).reduce((acc, item) => {
       acc[item.location] = (acc[item.location] ?? 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    const topLocation = sortedLocations[0];
+    const maxCount = sortedLocations[0].count;
+    const tiedLocations = sortedLocations.filter((l) => l.count === maxCount);
     const longBenchTotal = this.longBenchCount();
-    console.log(topLocation, ">>topLocation", longestBenchLocations, " >>longestBenchLocations")
-    const longBenchAtTop = topLocation ? longestBenchLocations[topLocation.location] ?? 0 : 0;
 
-    if (!topLocation) {
-      return 'No bench location data is available.';
+    if (tiedLocations.length > 1) {
+      const names = this.formatNameList(tiedLocations.map((l) => l.location));
+      return `${names} have the same highest bench concentration with ${maxCount} employees each.`;
     }
 
+    const topLocation = sortedLocations[0];
+    const longBenchAtTop = topLocation ? longestBenchLocations[topLocation.location] ?? 0 : 0;
     return `${topLocation.location} has the highest bench concentration with ${topLocation.count} employee${topLocation.count !== 1 ? 's' : ''}, including ${longBenchAtTop} of ${longBenchTotal} long bench employees.`;
   }
 
@@ -667,7 +725,20 @@ export class DashboardComponent {
       return 'No employees have bench duration above 45 days right now.';
     }
 
-    const leader = this.longestBenchEmployees()[0];
+    const leaders = this.longestBenchEmployees();
+    if (!leaders.length) {
+      return `${count} employee${count !== 1 ? 's' : ''} have bench duration above 45 days.`;
+    }
+
+    const maxDuration = leaders[0].durationCount;
+    const tiedLeaders = leaders.filter((l) => l.durationCount === maxDuration);
+
+    if (tiedLeaders.length > 1) {
+      const names = this.formatNameList(tiedLeaders.map((l) => l.employeeName));
+      return `${count} employee${count !== 1 ? 's' : ''} have bench duration above 45 days. ${names} have the same highest duration of ${maxDuration} days.`;
+    }
+
+    const leader = leaders[0];
     return `${count} employee${count !== 1 ? 's' : ''} have bench duration above 45 days. ${leader.employeeName} leads at ${leader.durationCount} days (${this.getRisk(leader)}).`;
   }
 
@@ -784,20 +855,29 @@ export class DashboardComponent {
   getResourceUtilizationInsight(): string {
     const units = this.businessUnitUtilization();
     if (!units.length) {
-      return 'Insight: No business unit bench data is available.';
+      return 'No business unit bench data is available.';
+    }
+
+    const maxBench = Math.max(...units.map((u) => u.bench));
+    if (maxBench === 0) {
+      return 'All business units currently have zero bench employees.';
+    }
+
+    const tied = units.filter((u) => u.bench === maxBench);
+    const nonTiedWithBench = units.filter((u) => u.bench > 0 && u.bench < maxBench);
+    const compared = nonTiedWithBench.length ? ` compared to ${this.formatNameList(nonTiedWithBench.map((u) => u.businessUnit))}` : '';
+
+    if (tied.length > 1) {
+      const names = this.formatNameList(tied.map((u) => u.businessUnit));
+      return `${names} have the same highest bench concentration with ${maxBench} employees each${compared}.`;
     }
 
     const top = units[0];
     if (units.length === 1) {
-      return `Insight: ${top.businessUnit} has ${top.bench} bench employee${top.bench !== 1 ? 's' : ''} and ${top.billable} billable resources.`;
+      return `${top.businessUnit} has ${top.bench} bench employee${top.bench !== 1 ? 's' : ''} and ${top.billable} billable resources.`;
     }
 
-    const compared = units
-      .slice(1)
-      .filter((u) => u.bench > 0)
-      .map((item) => item.businessUnit)
-      .join(' and ');
-    return `Insight: ${top.businessUnit} has the highest bench concentration with ${top.bench} employee${top.bench !== 1 ? 's' : ''}${compared ? ` compared to ${compared}` : ''}.`;
+    return `${top.businessUnit} has the highest bench concentration with ${top.bench} employee${top.bench !== 1 ? 's' : ''}${compared}.`;
   }
 
   getBenchTrendSeries(): Array<{ label: string; value: number; height: number }> {
@@ -913,13 +993,21 @@ export class DashboardComponent {
   getBenchTrendInsight(): string {
     const series = this.getBenchTrendSeries();
     if (!series.length) {
-      return 'Insight: No monthly bench trend is available.';
+      return 'No monthly bench trend is available.';
     }
 
     const first = series[0];
     const last = series[series.length - 1];
-    const peak = series.reduce((best, point) => (point.value > best.value ? point : best), series[0]);
-    return `Trend Analysis: Bench has grown from ${first.value} (${first.label}) to ${last.value} (${last.label}), peaking at ${peak.value}. ${last.label} shows current headcount and recent recovery activity.`;
+    const maxVal = Math.max(...series.map((point) => point.value));
+    const peakPoints = series.filter((point) => point.value === maxVal);
+
+    if (peakPoints.length > 1) {
+      const peakMonths = this.formatNameList(peakPoints.map((p) => p.label));
+      return `${peakMonths} have the same highest bench count at ${maxVal} employees. ${last.label} shows current headcount and recent recovery activity.`;
+    }
+
+    const peak = peakPoints[0] || series[0];
+    return `Bench has grown from ${first.value} (${first.label}) to ${last.value} (${last.label}), peaking at ${peak.value}. ${last.label} shows current headcount and recent recovery activity.`;
   }
 
   technologyUtilizationRows(): Array<{ technology: string; billable: number; bench: number; total: number; percent: number }> {
@@ -1147,6 +1235,18 @@ export class DashboardComponent {
     if (!techs.length) {
       return 'No bench employees match the selected criteria.';
     }
+
+    const maxCount = techs[0].count;
+    if (maxCount === 0) {
+      return 'No bench employees match the selected criteria.';
+    }
+
+    const tied = techs.filter((t) => t.count === maxCount);
+    if (tied.length > 1) {
+      const names = this.formatNameList(tied.map((t) => t.key));
+      return `${names} have the same highest bench concentration with ${maxCount} employees each.`;
+    }
+
     const top = techs[0];
     return `${top.key} has the highest bench concentration with ${top.count} employee${top.count !== 1 ? 's' : ''}.`;
   }

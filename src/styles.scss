@@ -500,14 +500,22 @@
 }
 
 .resource-insight,
-.trend-insight {
-  margin: 0 1.5rem 1.5rem;
-  padding: 1rem;
+.trend-insight,
+.aging-insight,
+.bubble-chart-note {
+  margin: 0.5rem 1.25rem 1.25rem;
+  padding: 0.85rem 1.1rem;
   border-radius: 8px;
-  background: #f0f7ff;
-  color: #0b3b66;
-  font-size: 0.95rem;
-  border: 1px solid #dbeafe;
+  background: #eef6ff;
+  border: 1px solid #cfe2fa;
+  color: #104a8e;
+  font-size: 0.92rem;
+  line-height: 1.4;
+
+  strong {
+    color: #0b4079;
+    font-weight: 700;
+  }
 }
 
 .trend-metrics {

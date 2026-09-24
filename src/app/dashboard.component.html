@@ -119,7 +119,9 @@
           </div>
         </div>
       </div>
-      <div class="resource-insight">{{ getResourceUtilizationInsight() }}</div>
+      <div class="bubble-chart-note">
+        <strong>Insight:</strong> {{ getResourceUtilizationInsight() }}
+      </div>
       }
     </section>
 
@@ -139,7 +141,9 @@
         </div>
       </div>
       <app-chart [seriesData]="chartSeries()" [categories]="chartCategories()"></app-chart>
-      <div class="trend-insight">{{ getBenchTrendInsight() }}</div>
+      <div class="bubble-chart-note">
+        <strong>Insight:</strong> {{ getBenchTrendInsight() }}
+      </div>
       }
     </section>
   </div>
@@ -241,9 +245,9 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="aging-insight">
-              {{ getAgingInsightText() }}
-            </div> -->
+            <div class="bubble-chart-note">
+              <strong>Insight:</strong> {{ getExperienceInsightText() }}
+            </div>
           </div>
         </div>
         }
@@ -331,8 +335,8 @@
             </div>
           </div>
         </div>
-        <div class="aging-insight">
-          {{ getAgingInsightText() }}
+        <div class="bubble-chart-note">
+          <strong>Insight:</strong> {{ getAgingInsightText() }}
         </div>
       </div>
     </div>

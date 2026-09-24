@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DashboardComponent } from './dashboard.component';
-import { ApiService } from './api.service';
+import { ApiService, BenchDetail } from './api.service';
 
 @Component({
   selector: 'app-bench-tabs',
@@ -48,7 +48,7 @@ import { ApiService } from './api.service';
                 <select
                   class="filter-select"
                   [value]="selectedBu"
-                  (change)="selectedBu = $any($event.target).value"
+                  (change)="onBuChange($any($event.target).value)"
                 >
                   <option value="ALL">All Business Units</option>
                   @for (bu of businessUnits; track bu) {
@@ -64,7 +64,7 @@ import { ApiService } from './api.service';
                 <select
                   class="filter-select"
                   [value]="selectedTech"
-                  (change)="selectedTech = $any($event.target).value"
+                  (change)="onTechChange($any($event.target).value)"
                 >
                   <option value="ALL">All Technologies</option>
                   @for (tech of technologies; track tech) {
@@ -387,15 +387,55 @@ export class BenchTabsComponent implements OnInit {
   selectedTech = 'ALL';
   selectedBu = 'ALL';
 
-  technologies: string[] = [];
-  businessUnits: string[] = [];
+  allEmployees: BenchDetail[] = [];
+  allTechnologies: string[] = [];
+  allBusinessUnits: string[] = [];
+
+  get businessUnits(): string[] {
+    if (!this.allEmployees || this.allEmployees.length === 0) {
+      return this.allBusinessUnits;
+    }
+    if (this.selectedTech === 'ALL') {
+      return this.allBusinessUnits;
+    }
+    const buSet = new Set<string>();
+    const selectedTechLower = this.selectedTech.trim().toLowerCase();
+    this.allEmployees.forEach((emp) => {
+      if (emp.technology && emp.technology.trim().toLowerCase() === selectedTechLower) {
+        if (emp.businessUnit && emp.businessUnit.trim()) {
+          buSet.add(emp.businessUnit.trim());
+        }
+      }
+    });
+    return Array.from(buSet).sort((a, b) => a.localeCompare(b));
+  }
+
+  get technologies(): string[] {
+    if (!this.allEmployees || this.allEmployees.length === 0) {
+      return this.allTechnologies;
+    }
+    if (this.selectedBu === 'ALL') {
+      return this.allTechnologies;
+    }
+    const techSet = new Set<string>();
+    const selectedBuLower = this.selectedBu.trim().toLowerCase();
+    this.allEmployees.forEach((emp) => {
+      if (emp.businessUnit && emp.businessUnit.trim().toLowerCase() === selectedBuLower) {
+        if (emp.technology && emp.technology.trim()) {
+          techSet.add(emp.technology.trim());
+        }
+      }
+    });
+    return Array.from(techSet).sort((a, b) => a.localeCompare(b));
+  }
 
   constructor(private readonly api: ApiService) {}
 
   ngOnInit(): void {
     this.api.getDashboardData().subscribe({
       next: (res) => {
-        const employees = res.result?.employees || (Array.isArray(res.result) ? res.result : []);
+        const employees: BenchDetail[] = res.result?.employees || (Array.isArray(res.result) ? (res.result as any) : []);
+        this.allEmployees = employees;
         const techSet = new Set<string>();
         const buSet = new Set<string>();
 
@@ -408,21 +448,33 @@ export class BenchTabsComponent implements OnInit {
           }
         });
 
-        if (res.result?.headcounts) {
-          res.result.headcounts.forEach((hc) => {
-            if (hc.businessUnit && hc.businessUnit.trim()) {
-              buSet.add(hc.businessUnit.trim());
-            }
-          });
-        }
-
-        this.technologies = Array.from(techSet).sort((a, b) => a.localeCompare(b));
-        this.businessUnits = Array.from(buSet).sort((a, b) => a.localeCompare(b));
+        this.allTechnologies = Array.from(techSet).sort((a, b) => a.localeCompare(b));
+        this.allBusinessUnits = Array.from(buSet).sort((a, b) => a.localeCompare(b));
       },
       error: (err) => {
         console.error('Error fetching filter options in BenchTabsComponent', err);
       }
     });
+  }
+
+  onBuChange(bu: string): void {
+    this.selectedBu = bu;
+    if (this.selectedTech !== 'ALL') {
+      const availableTechs = this.technologies;
+      if (!availableTechs.includes(this.selectedTech)) {
+        this.selectedTech = 'ALL';
+      }
+    }
+  }
+
+  onTechChange(tech: string): void {
+    this.selectedTech = tech;
+    if (this.selectedBu !== 'ALL') {
+      const availableBus = this.businessUnits;
+      if (!availableBus.includes(this.selectedBu)) {
+        this.selectedBu = 'ALL';
+      }
+    }
   }
 
   get todayDate(): string {
